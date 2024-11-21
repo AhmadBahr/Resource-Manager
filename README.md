@@ -30,7 +30,7 @@ Recharts: Renders dynamic charts for visualizing system metrics.
 
 ## Utilities:
 
-Systeminformation + os-utils: Collects detailed system information (CPU, GPU, RAM, etc.).
+System information + os-utils: Collects detailed system information (CPU, GPU, RAM, etc.).
 
 cross-env: Simplifies setting environment variables across platforms.
 
