@@ -8,27 +8,51 @@
 5. [**Code & Snippets**](#codesnippets)
 
 ## General Info
-The Resource Manager Electron App provides real-time system performance insights, displaying CPU, GPU, and RAM usage in a user-friendly interface. The app uses Electron's power to interact with system resources and React to render the UI dynamically.
+The Resource Manager Electron App monitors system resources (CPU, RAM, GPU) in real-time using modern tools and frameworks. The app offers comprehensive support for development, testing, and deployment, ensuring a seamless experience for developers and end-users alike.
 
 # Technologies Used:
 
-## Frontend Development:
+## Core Frameworks:
 
-React.js: Creates reusable UI components for a seamless experience.
+Electron.js: Builds cross-platform desktop apps.
 
-Tailwind CSS: Adds responsive and modern design elements.
+React.js + React DOM: Frontend framework for creating interactive UI components.
 
-Chart.js: Renders performance metrics in visually appealing charts.
+Vite: Ultra-fast build tool for React with first-class TypeScript support.
 
-React Icons: Supplies icons for visual clarity.
-
- ## Backend:
+ ## Styling:
  
-Electron.js: Core framework to build cross-platform desktop applications.
+Tailwind CSS: Provides a modern and responsive design system.
 
-Node.js: Provides runtime for fetching system resource data.
+## Data Visualization:
 
-Systeminformation (NPM Package): Gathers real-time hardware and OS performance data.
+Recharts: Renders dynamic charts for visualizing system metrics.
+
+## Utilities:
+
+Systeminformation + os-utils: Collects detailed system information (CPU, GPU, RAM, etc.).
+
+cross-env: Simplifies setting environment variables across platforms.
+
+## Testing:
+
+Cypress: E2E testing for app flows.
+
+Playwright: Cross-browser automated testing.
+
+Vitest: Unit testing framework optimized for Vite.
+
+## Build and Packaging:
+
+TypeScript: Adds static typing for robust development.
+
+Electron Forge: Simplifies packaging and distribution of Electron apps.
+
+## Development Tools:
+
+npm-run-all: Orchestrates multiple NPM scripts.
+
+Axios: Handles HTTP requests efficiently.
 
 # Setup
 
@@ -46,61 +70,117 @@ Install dependencies (if applicable):
 
 npm install
 
-## Packaging
+## Run Development Mode
 
-To build the app as an executable:
+Transpile TypeScript and start the app:
+
+npm run dev
+
+Build the app for production:
+
+npm run build
 
 This will generate the distributable file in the dist directory.
 
 ## Features
 
-Real-Time CPU Usage Monitoring:
+Real-Time System Monitoring:
 
-Displays current CPU load percentage.
-Graphical representation of usage trends.
-RAM Usage Tracking:
+Displays CPU, RAM, and GPU usage dynamically.
 
-Shows total, used, and free memory in a detailed bar chart.
-GPU Information:
+Uses Recharts for interactive visualizations.
 
-Tracks GPU load, temperature, and memory usage (if supported by the system).
-Customizable UI:
+2. Testing and Automation:
+   
+E2E tests using Cypress and Playwright.
 
-Users can toggle between dark and light themes.
-Options to adjust update intervals.
+Unit tests with Vitest.
+
+4. TypeScript Integration:
+   
+Provides static typing across the codebase for reliability.
+
+6. Fast Development:
+   
+Vite for rapid builds and hot module replacement (HMR).
 
 # Code & Snippets: 
 
-## Example:  Main Process in Electron:
+## Example:React Frontend (TypeScript + Vite)
 
-This snippet demonstrates The main process manages system-level functionality:
+This React component fetches and visualizes resource data.
 
-const { app, BrowserWindow, ipcMain } = require("electron");
-const si = require("systeminformation");
+import React, { useState, useEffect } from "react";
+import { ipcRenderer } from "electron";
+import { LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip } from "recharts";
 
-let mainWindow;
+interface SystemInfo {
+  cpuUsage: number;
+  ram: {
+    total: number;
+    active: number;
+  };
+  gpu: {
+    controllers: { model: string; temperatureGpu?: number }[];
+  };
+}
 
-app.on("ready", () => {
-  mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
-    webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
-    },
-  });
+const App: React.FC = () => {
+  const [data, setData] = useState<SystemInfo | null>(null);
+  const [cpuHistory, setCpuHistory] = useState<number[]>([]);
 
-  mainWindow.loadURL("http://localhost:3000"); // Pointing to React's development server.
-});
+  useEffect(() => {
+    const fetchData = () => {
+      ipcRenderer.send("get-system-info");
+    };
 
-// Handle system info requests
-ipcMain.on("get-system-info", async (event) => {
-  const cpu = await si.currentLoad();
-  const ram = await si.mem();
-  const gpu = await si.graphics();
+    ipcRenderer.on("system-info", (_, systemData: SystemInfo) => {
+      setData(systemData);
+      setCpuHistory((prev) => [...prev, systemData.cpuUsage].slice(-10));
+    });
 
-  event.reply("system-info", { cpu, ram, gpu });
-});
+    fetchData();
+    const interval = setInterval(fetchData, 1000);
+
+    return () => {
+      clearInterval(interval);
+      ipcRenderer.removeAllListeners("system-info");
+    };
+  }, []);
+
+  return (
+    <div className="p-4">
+      <h1 className="text-xl font-bold">Resource Manager</h1>
+
+      <section className="mt-4">
+        <h2>CPU Usage</h2>
+        <LineChart width={600} height={300} data={cpuHistory.map((value, index) => ({ index, value }))}>
+          <Line type="monotone" dataKey="value" stroke="#8884d8" />
+          <CartesianGrid stroke="#ccc" />
+          <XAxis dataKey="index" />
+          <YAxis />
+          <Tooltip />
+        </LineChart>
+      </section>
+
+      {data && (
+        <section className="mt-4">
+          <h2>RAM Usage</h2>
+          <p>Total: {(data.ram.total / 1e9).toFixed(2)} GB</p>
+          <p>Active: {(data.ram.active / 1e9).toFixed(2)} GB</p>
+
+          <h2>GPU Information</h2>
+          <p>
+            Model: {data.gpu.controllers[0]?.model || "N/A"}, Temp:{" "}
+            {data.gpu.controllers[0]?.temperatureGpu || "N/A"}°C
+          </p>
+        </section>
+      )}
+    </div>
+  );
+};
+
+export default App;
 
 ## Example: Example: React Frontend (Display Data):
 
@@ -181,3 +261,42 @@ const App = () => {
 };
 
 export default App;
+
+## Package.json Scripts
+
+Add these scripts for running and testing:
+
+"scripts": {
+  "dev": "cross-env NODE_ENV=development vite",
+  "build": "electron-forge package && vite build",
+  "test": "vitest run",
+  "test:playwright": "playwright test",
+  "test:cypress": "cypress open",
+  "start": "electron-forge start",
+  "all": "npm-run-all --parallel dev test"
+}
+
+## Testing Configuration:
+
+# Cypress:
+
+Initialize with npx cypress open.
+
+# Playwright:
+
+Set up Playwright with npx playwright install.
+
+# Vitest:
+
+Add this configuration in vite.config.ts:
+
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  test: {
+    globals: true,
+    environment: "jsdom",
+  },
+});
+
+
