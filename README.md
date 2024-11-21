@@ -8,174 +8,176 @@
 5. [**Code & Snippets**](#codesnippets)
 
 ## General Info
-The Essential Widgets Chrome Extension is a productivity-focused project designed to enhance user efficiency and provide quick access to essential tools. The extension offers six widgets:
-
-Greetings: Displays a personalized greeting based on the time of day.
-
-Weather: Provides current weather conditions using a weather API.
-
-Time and Date: Shows the current time and date in a visually appealing format.
-
-Crypto: Tracks cryptocurrency prices in real-time.
-
-To-Do: A simple task management widget to organize daily activities.
-
-Bookmark: Quickly save and access frequently visited web pages.
+The Resource Manager Electron App provides real-time system performance insights, displaying CPU, GPU, and RAM usage in a user-friendly interface. The app uses Electron's power to interact with system resources and React to render the UI dynamically.
 
 # Technologies Used:
 
 ## Frontend Development:
 
-React.js: React is used as the primary framework for building the dynamic and reusable components of the extension, 
+React.js: Creates reusable UI components for a seamless experience.
 
-ensuring efficient state management and seamless updates.
+Tailwind CSS: Adds responsive and modern design elements.
 
-HTML, CSS, and JavaScript: Core technologies underpinning the extension’s structure and logic.
+Chart.js: Renders performance metrics in visually appealing charts.
 
-Tailwind CSS: Utilized for styling the widgets with a responsive and modern design, integrated with React components for rapid development.
+React Icons: Supplies icons for visual clarity.
 
- ## APIs and Libraries
+ ## Backend:
  
-OpenWeatherMap API: Fetches real-time weather data for the Weather widget. React hooks are employed to manage API calls and state.
+Electron.js: Core framework to build cross-platform desktop applications.
 
-CoinGecko API: Provides live cryptocurrency price updates for the Crypto widget, with efficient rendering using React's state and props.
+Node.js: Provides runtime for fetching system resource data.
 
-Moment.js: Used to format and manage time and date data within React components.
-
-localStorage: Integrated with React to store user data (to-do items, bookmarks, and preferences) persistently across sessions.
-
-React Icons: Supplies high-quality SVG icons to enhance the design of each widget.
-
-Axios: A promise-based HTTP client for making API requests, simplifying the handling of asynchronous operations.
+Systeminformation (NPM Package): Gathers real-time hardware and OS performance data.
 
 # Setup
-## Extension Setup
+
+## Development Environment
 
 Clone the repository:
 
-git clone https://github.com/your-username/essential-widgets.git
+git clone https://github.com/your-username/resource-manager.git
 
 Navigate to the project directory:
 
-cd essential-widgets
+cd resource-manager
 
 Install dependencies (if applicable):
 
 npm install
 
-Load the extension in Chrome:
+## Packaging
 
-Open Chrome and go to chrome://extensions.
+To build the app as an executable:
 
-Enable Developer Mode.
-
-Click on Load Unpacked and select the essential-widgets project directory.
-
-Open a new tab to see the widgets in action.
+This will generate the distributable file in the dist directory.
 
 ## Features
 
-Greetings Widget:
+Real-Time CPU Usage Monitoring:
 
-Displays a personalized greeting (e.g., “Good Morning”) based on the time of day.
+Displays current CPU load percentage.
+Graphical representation of usage trends.
+RAM Usage Tracking:
 
-Allows customization of user name for a more tailored experience.
+Shows total, used, and free memory in a detailed bar chart.
+GPU Information:
 
-2. Weather Widget:
-   
-Fetches real-time weather information using the OpenWeatherMap API.
+Tracks GPU load, temperature, and memory usage (if supported by the system).
+Customizable UI:
 
-Displays temperature, humidity, and weather conditions.
-
-Allows location input for city-specific data.
-
-4. Time and Date Widget:
-   
-Provides current time and date in an elegant format.
-
-Updates in real-time without refreshing the tab.
-
-6. Crypto Widget:
-   
-Tracks real-time prices of selected cryptocurrencies (e.g., Bitcoin, Ethereum).
-
-Option to add or remove cryptocurrencies from the watchlist.
-
-8. To-Do Widget:
-   
-Allows users to add, edit, and delete tasks.
-
-Saves task data locally using localStorage.
-
-10. Bookmark Widget:
-    
-Provides a quick-access list of frequently visited sites.
-
-Allows adding and deleting bookmarks.
+Users can toggle between dark and light themes.
+Options to adjust update intervals.
 
 # Code & Snippets: 
 
-## Example: To-Do Widget Functionality:
+## Example:  Main Process in Electron:
 
-This snippet demonstrates how to implement a basic to-do list using localStorage:
+This snippet demonstrates The main process manages system-level functionality:
 
-const todoInput = document.getElementById("todo-input");
-const todoList = document.getElementById("todo-list");
-const addTodoButton = document.getElementById("add-todo");
+const { app, BrowserWindow, ipcMain } = require("electron");
+const si = require("systeminformation");
 
-// Load saved todos from localStorage
-const savedTodos = JSON.parse(localStorage.getItem("todos")) || [];
-savedTodos.forEach((todo) => addTodoToList(todo));
+let mainWindow;
 
-// Add a new task
-addTodoButton.addEventListener("click", () => {
-  const todoText = todoInput.value.trim();
-  if (todoText) {
-    addTodoToList(todoText);
-    saveTodoToLocal(todoText);
-    todoInput.value = "";
-  }
+app.on("ready", () => {
+  mainWindow = new BrowserWindow({
+    width: 800,
+    height: 600,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+    },
+  });
+
+  mainWindow.loadURL("http://localhost:3000"); // Pointing to React's development server.
 });
 
-// Add todo to the DOM
-function addTodoToList(todoText) {
-  const listItem = document.createElement("li");
-  listItem.textContent = todoText;
-  listItem.classList.add("todo-item");
-  todoList.appendChild(listItem);
-}
+// Handle system info requests
+ipcMain.on("get-system-info", async (event) => {
+  const cpu = await si.currentLoad();
+  const ram = await si.mem();
+  const gpu = await si.graphics();
 
-// Save todo to localStorage
-function saveTodoToLocal(todoText) {
-  savedTodos.push(todoText);
-  localStorage.setItem("todos", JSON.stringify(savedTodos));
-}
-
-## Example: To-Do Widget Functionality:
-
-This snippet fetches weather data from the OpenWeatherMap API:
-
-const apiKey = "your-api-key";
-const weatherDisplay = document.getElementById("weather");
-
-navigator.geolocation.getCurrentPosition((position) => {
-
-  const { latitude, longitude } = position.coords;
-
-  fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=${apiKey}`)
-  
-    .then((response) => response.json())
-    
-    .then((data) => {
-    
-      const { temp } = data.main;
-      
-      const { description } = data.weather[0];
-      
-      weatherDisplay.textContent = `Temperature: ${temp}°C, ${description}`;
-      
-    })
-    
-    .catch((error) => console.error("Error fetching weather data:", error));
-    
+  event.reply("system-info", { cpu, ram, gpu });
 });
+
+## Example: Example: React Frontend (Display Data):
+
+This snippet listens for system info updates and displays them.
+
+import React, { useEffect, useState } from "react";
+import { ipcRenderer } from "electron";
+import { Line } from "react-chartjs-2";
+
+const App = () => {
+  const [cpuLoad, setCpuLoad] = useState([]);
+  const [ramUsage, setRamUsage] = useState({});
+  const [gpuInfo, setGpuInfo] = useState({});
+
+  useEffect(() => {
+    const fetchData = () => {
+      ipcRenderer.send("get-system-info");
+    };
+
+    ipcRenderer.on("system-info", (event, data) => {
+      const { cpu, ram, gpu } = data;
+      setCpuLoad((prev) => [...prev, cpu.currentLoad].slice(-10));
+      setRamUsage({
+        total: (ram.total / 1e9).toFixed(2),
+        used: (ram.active / 1e9).toFixed(2),
+      });
+      setGpuInfo(gpu.controllers[0]);
+    });
+
+    fetchData();
+    const interval = setInterval(fetchData, 1000);
+
+    return () => {
+      clearInterval(interval);
+      ipcRenderer.removeAllListeners("system-info");
+    };
+  }, []);
+
+  return (
+    <div className="p-4">
+      <h1 className="text-xl font-bold">Resource Manager</h1>
+
+      <div className="mt-4">
+        <h2>CPU Usage</h2>
+        <Line
+          data={{
+            labels: Array.from({ length: 10 }, (_, i) => `-${10 - i}s`),
+            datasets: [
+              {
+                label: "CPU Load (%)",
+                data: cpuLoad,
+                borderColor: "#4caf50",
+                fill: false,
+              },
+            ],
+          }}
+        />
+      </div>
+
+      <div className="mt-4">
+        <h2>RAM Usage</h2>
+        <p>
+          Total: {ramUsage.total} GB, Used: {ramUsage.used} GB
+        </p>
+      </div>
+
+      <div className="mt-4">
+        <h2>GPU Information</h2>
+        {gpuInfo && (
+          <p>
+            Model: {gpuInfo.model}, Load: {gpuInfo.load || 0}%, Temp:{" "}
+            {gpuInfo.temperatureGpu || "N/A"}°C
+          </p>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default App;
