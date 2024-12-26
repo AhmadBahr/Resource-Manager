@@ -288,7 +288,7 @@ Set up Playwright with npx playwright install.
 
 # Vitest:
 
-Add this configuration in vite.config.ts:
+Add this configuration in vite.config.ts
 
 import { defineConfig } from "vite";
 
