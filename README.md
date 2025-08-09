@@ -1,302 +1,184 @@
-# Resource Manager Electron App
+# Resource Manager - System Monitor
 
-## Table of Contents
-1. [**General Info**](#general-info)
-2. [**Technologies Used**](#technologies-used)
-3. [**Setup**](#setup)
-4. [**Features**](#features) 
-5. [**Code & Snippets**](#codesnippets)
+A modern desktop application for real-time system resource monitoring built with Electron and React.
 
-## General Info
-The Resource Manager Electron App monitors system resources (CPU, RAM, GPU) in real-time using modern tools and frameworks. The app offers comprehensive support for development, testing, and deployment, ensuring a seamless experience for developers and end-users alike.
+![Electron](https://img.shields.io/badge/Electron-191970?style=for-the-badge&logo=electron&logoColor=white)
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Recharts](https://img.shields.io/badge/Recharts-FF6B6B?style=for-the-badge&logo=recharts&logoColor=white)
+![Playwright](https://img.shields.io/badge/Playwright-2EAD96?style=for-the-badge&logo=playwright&logoColor=white)
 
-# Technologies Used:
+## ✨ Features
 
-## Core Frameworks:
+- 📊 **Real-Time Monitoring** - Live CPU, RAM, and storage usage tracking
+- 📈 **Interactive Charts** - Beautiful visualizations with Recharts
+- 🖥️ **System Tray** - Minimize to system tray for background monitoring
+- 🎨 **Modern UI** - Clean, responsive interface with Tailwind CSS
+- 🔧 **Cross-Platform** - Works on Windows, macOS, and Linux
+- 🧪 **Comprehensive Testing** - Unit tests with Vitest and E2E with Playwright
+- ⚡ **Fast Development** - Hot reload with Vite and TypeScript
 
-Electron.js: Builds cross-platform desktop apps.
+## 🚀 Quick Start
 
-React.js + React DOM: Frontend framework for creating interactive UI components.
+### Prerequisites
+- Node.js (v18+)
+- npm or yarn
 
-Vite: Ultra-fast build tool for React with first-class TypeScript support.
+### Installation
+```bash
+# Clone the repository
+git clone <repository-url>
+cd Resource-Manager
 
- ## Styling:
- 
-Tailwind CSS: Provides a modern and responsive design system.
-
-## Data Visualization:
-
-Recharts: Renders dynamic charts for visualizing system metrics.
-
-## Utilities:
-
-System information + os-utils: Collects detailed system information (CPU, GPU, RAM, etc.).
-
-cross-env: Simplifies setting environment variables across platforms.
-
-## Testing:
-
-Cypress: E2E testing for app flows.
-
-Playwright: Cross-browser automated testing.
-
-Vitest: Unit testing framework optimized for Vite.
-
-## Build and Packaging:
-
-TypeScript: Adds static typing for robust development.
-
-Electron Forge: Simplifies packaging and distribution of Electron apps.
-
-## Development Tools:
-
-npm-run-all: Orchestrates multiple NPM scripts.
-
-Axios: Handles HTTP requests efficiently.
-
-# Setup
-
-## Development Environment
-
-Clone the repository:
-
-git clone https://github.com/your-username/resource-manager.git
-
-Navigate to the project directory:
-
-cd resource-manager
-
-Install dependencies (if applicable):
-
+# Install dependencies
 npm install
 
-## Run Development Mode
-
-Transpile TypeScript and start the app:
-
+# Start development mode
 npm run dev
+```
 
-Build the app for production:
+The app will open automatically in development mode.
 
-npm run build
+### Building for Production
+```bash
+# Build for your platform
+npm run dist:win    # Windows
+npm run dist:mac    # macOS
+npm run dist:linux  # Linux
+```
 
-This will generate the distributable file in the dist directory.
+## 🛠️ Tech Stack
 
-## Features
+**Frontend:**
+- React 18 + TypeScript
+- Vite for fast development
+- Tailwind CSS for styling
+- Recharts for data visualization
 
-Real-Time System Monitoring:
+**Desktop:**
+- Electron 32
+- Node.js system APIs
+- os-utils for resource monitoring
 
-Displays CPU, RAM, and GPU usage dynamically.
+**Testing:**
+- Vitest for unit testing
+- Playwright for E2E testing
 
-Uses Recharts for interactive visualizations.
+**Build Tools:**
+- TypeScript for type safety
+- Electron Builder for packaging
+- npm-run-all for script orchestration
 
-2. Testing and Automation:
-   
-E2E tests using Cypress and Playwright.
+## 📁 Project Structure
 
-Unit tests with Vitest.
+```
+Resource-Manager/
+├── src/
+│   ├── electron/           # Electron main process
+│   │   ├── main.ts        # App entry point
+│   │   ├── resourceManager.ts  # System monitoring
+│   │   ├── tray.ts        # System tray functionality
+│   │   └── menu.ts        # Application menu
+│   └── ui/                # React frontend
+│       ├── App.tsx        # Main React component
+│       ├── Chart.tsx      # Chart components
+│       └── useStatistics.ts  # Data hooks
+├── e2e/                   # End-to-end tests
+├── dist/                  # Built application
+└── package.json          # Dependencies and scripts
+```
 
-4. TypeScript Integration:
-   
-Provides static typing across the codebase for reliability.
+## 🔧 Configuration
 
-6. Fast Development:
-   
-Vite for rapid builds and hot module replacement (HMR).
+### Development Environment
+The app automatically detects development mode and loads from `http://localhost:5123`.
 
-# Code & Snippets: 
-
-## Example:React Frontend (TypeScript + Vite)
-
-This React component fetches and visualizes resource data.
-
-import React, { useState, useEffect } from "react";
-import { ipcRenderer } from "electron";
-import { LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip } from "recharts";
-
-interface SystemInfo {
-  cpuUsage: number;
-  ram: {
-    total: number;
-    active: number;
-  };
-  gpu: {
-    controllers: { model: string; temperatureGpu?: number }[];
-  };
+### Production Build
+Update `electron-builder.json` for custom build configurations:
+```json
+{
+  "appId": "com.resourcemanager.app",
+  "productName": "Resource Manager",
+  "directories": {
+    "output": "dist"
+  }
 }
+```
 
-const App: React.FC = () => {
-  const [data, setData] = useState<SystemInfo | null>(null);
-  const [cpuHistory, setCpuHistory] = useState<number[]>([]);
+## 📊 System Monitoring
 
-  useEffect(() => {
-    const fetchData = () => {
-      ipcRenderer.send("get-system-info");
-    };
+The app monitors the following system resources:
 
-    ipcRenderer.on("system-info", (_, systemData: SystemInfo) => {
-      setData(systemData);
-      setCpuHistory((prev) => [...prev, systemData.cpuUsage].slice(-10));
-    });
+**CPU Usage:**
+- Real-time CPU utilization percentage
+- Historical data visualization
 
-    fetchData();
-    const interval = setInterval(fetchData, 1000);
+**Memory (RAM):**
+- Total and used memory
+- Memory usage percentage
 
-    return () => {
-      clearInterval(interval);
-      ipcRenderer.removeAllListeners("system-info");
-    };
-  }, []);
+**Storage:**
+- Disk space usage
+- Available storage monitoring
 
-  return (
-    <div className="p-4">
-      <h1 className="text-xl font-bold">Resource Manager</h1>
+**GPU Information:**
+- GPU model detection
+- Temperature monitoring (when available)
 
-      <section className="mt-4">
-        <h2>CPU Usage</h2>
-        <LineChart width={600} height={300} data={cpuHistory.map((value, index) => ({ index, value }))}>
-          <Line type="monotone" dataKey="value" stroke="#8884d8" />
-          <CartesianGrid stroke="#ccc" />
-          <XAxis dataKey="index" />
-          <YAxis />
-          <Tooltip />
-        </LineChart>
-      </section>
+## 🧪 Testing
 
-      {data && (
-        <section className="mt-4">
-          <h2>RAM Usage</h2>
-          <p>Total: {(data.ram.total / 1e9).toFixed(2)} GB</p>
-          <p>Active: {(data.ram.active / 1e9).toFixed(2)} GB</p>
+**Unit Tests:**
+```bash
+npm run test:unit
+```
 
-          <h2>GPU Information</h2>
-          <p>
-            Model: {data.gpu.controllers[0]?.model || "N/A"}, Temp:{" "}
-            {data.gpu.controllers[0]?.temperatureGpu || "N/A"}°C
-          </p>
-        </section>
-      )}
-    </div>
-  );
-};
+**E2E Tests:**
+```bash
+npm run test:e2e
+```
 
-export default App;
+**All Tests:**
+```bash
+npm run test:unit && npm run test:e2e
+```
 
-## Example: Example: React Frontend (Display Data):
+## 🚀 Deployment
 
-This snippet listens for system info updates and displays them.
+**Development:**
+```bash
+npm run dev
+```
 
-import React, { useEffect, useState } from "react";
-import { ipcRenderer } from "electron";
-import { Line } from "react-chartjs-2";
+**Production Build:**
+```bash
+# For Windows
+npm run dist:win
 
-const App = () => {
-  const [cpuLoad, setCpuLoad] = useState([]);
-  const [ramUsage, setRamUsage] = useState({});
-  const [gpuInfo, setGpuInfo] = useState({});
+# For macOS
+npm run dist:mac
 
-  useEffect(() => {
-    const fetchData = () => {
-      ipcRenderer.send("get-system-info");
-    };
+# For Linux
+npm run dist:linux
+```
 
-    ipcRenderer.on("system-info", (event, data) => {
-      const { cpu, ram, gpu } = data;
-      setCpuLoad((prev) => [...prev, cpu.currentLoad].slice(-10));
-      setRamUsage({
-        total: (ram.total / 1e9).toFixed(2),
-        used: (ram.active / 1e9).toFixed(2),
-      });
-      setGpuInfo(gpu.controllers[0]);
-    });
+The built applications will be available in the `dist` directory.
 
-    fetchData();
-    const interval = setInterval(fetchData, 1000);
+## 🤝 Contributing
 
-    return () => {
-      clearInterval(interval);
-      ipcRenderer.removeAllListeners("system-info");
-    };
-  }, []);
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-  return (
-    <div className="p-4">
-      <h1 className="text-xl font-bold">Resource Manager</h1>
+## 📄 License
 
-      <div className="mt-4">
-        <h2>CPU Usage</h2>
-        <Line
-          data={{
-            labels: Array.from({ length: 10 }, (_, i) => `-${10 - i}s`),
-            datasets: [
-              {
-                label: "CPU Load (%)",
-                data: cpuLoad,
-                borderColor: "#4caf50",
-                fill: false,
-              },
-            ],
-          }}
-        />
-      </div>
+MIT License - see [LICENSE](LICENSE) for details.
 
-      <div className="mt-4">
-        <h2>RAM Usage</h2>
-        <p>
-          Total: {ramUsage.total} GB, Used: {ramUsage.used} GB
-        </p>
-      </div>
+---
 
-      <div className="mt-4">
-        <h2>GPU Information</h2>
-        {gpuInfo && (
-          <p>
-            Model: {gpuInfo.model}, Load: {gpuInfo.load || 0}%, Temp:{" "}
-            {gpuInfo.temperatureGpu || "N/A"}°C
-          </p>
-        )}
-      </div>
-    </div>
-  );
-};
-
-export default App;
-
-## Package.json Scripts
-
-Add these scripts for running and testing:
-
-"scripts": {
-  "dev": "cross-env NODE_ENV=development vite",
-  "build": "electron-forge package && vite build",
-  "test": "vitest run",
-  "test:playwright": "playwright test",
-  "test:cypress": "cypress open",
-  "start": "electron-forge start",
-  "all": "npm-run-all --parallel dev test"
-}
-
-## Testing Configuration:
-
-# Cypress:
-
-Initialize with npx cypress open.
-
-# Playwright:
-
-Set up Playwright with npx playwright install.
-
-# Vitest:
-
-Add this configuration in vite.config.ts
-
-import { defineConfig } from "vite";
-
-export default defineConfig({
-  test: {
-    globals: true,
-    environment: "jsdom",
-  },
-});
+**Built with ❤️ using Electron and React**
 
 
